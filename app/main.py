@@ -1,10 +1,13 @@
-from fastapi import FastAPI, Response, status, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Depends
 from pydantic import BaseModel
-from typing import Optional
-from random import randrange
 import psycopg
 from psycopg.rows import dict_row
 import time
+from .import models
+from .database import engine, Session, get_db
+
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -55,6 +58,11 @@ def find_index_post(id):
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+
+@app.get("/sqlAlchemy")
+def test_posts(db: Session = Depends(get_db)):
+    return {"status": "success "}
 
 
 @app.get("/posts")
