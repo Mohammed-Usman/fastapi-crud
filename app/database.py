@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker
 
 # "postgresql://<username>:<passowrd>@<ip-address/hostname>/<database_name>"
 SQLALCHEMY_DATABASE_URL = "postgresql://postgres:1234@localhost/fastapi_crud"

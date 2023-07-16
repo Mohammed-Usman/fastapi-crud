@@ -4,7 +4,8 @@ import psycopg
 from psycopg.rows import dict_row
 import time
 from .import models
-from .database import engine, Session, get_db
+from .database import engine, get_db
+from sqlalchemy.orm import Session
 
 
 models.Base.metadata.create_all(bind=engine)
@@ -60,28 +61,38 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/sqlAlchemy")
+@app.get("/sqlalchemy")
 def test_posts(db: Session = Depends(get_db)):
-    return {"status": "success "}
+    posts = db.query(models.Post).all()
+    return {"dats": posts}
 
 
 @app.get("/posts")
-async def get_posts():
-    cursor.execute("""SELECT * FROM posts""")
-    posts = cursor.fetchall()
-    return {"data": posts}
+async def get_posts(db: Session = Depends(get_db)):
+
+    # cursor.execute("""SELECT * FROM posts""")
+    # posts = cursor.fetchall()
+
+    posts = db.query(models.Post).all()
+    return {"dats": posts}
 
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-async def createposts(post: Post):
+async def createposts(post: Post, db: Session = Depends(get_db)):
 
-    cursor.execute(
-        "INSERT INTO posts (title, content, published) VALUES \
-            (%s ,%s, %s) RETURNING * ",
-        (post.title, post.content, post.published))
+    # cursor.execute(
+    #     "INSERT INTO posts (title, content, published) VALUES \
+    #         (%s ,%s, %s) RETURNING * ",
+    #     (post.title, post.content, post.published))
 
-    new_post = cursor.fetchone()
-    conn.commit()
+    # new_post = cursor.fetchone()
+    # conn.commit()
+
+    new_post = models.Post(**post.dict())
+
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
 
     return {"data": new_post}
 
