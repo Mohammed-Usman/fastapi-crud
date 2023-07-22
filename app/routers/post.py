@@ -6,10 +6,12 @@ from fastapi import Response, status, HTTPException, APIRouter, Depends
 from ..database import get_db
 from .. import models, schemas
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/posts"
+)
 
 
-@router.get("/posts", response_model=List[schemas.Post])
+@router.get("/", response_model=List[schemas.Post])
 async def get_posts(db: Session = Depends(get_db)):
 
     # cursor.execute("""SELECT * FROM posts""")
@@ -20,7 +22,7 @@ async def get_posts(db: Session = Depends(get_db)):
 
 
 @router.post(
-    "/posts",
+    "/",
     status_code=status.HTTP_201_CREATED,
     response_model=schemas.Post
 )
@@ -35,7 +37,7 @@ async def createposts(post: schemas.PostCreate, db: Session = Depends(get_db)):
     return new_post
 
 
-@router.get("/post/{id}", response_model=schemas.Post)
+@router.get("/{id}", response_model=schemas.Post)
 def get_post(id: int, response: Response, db: Session = Depends(get_db)):
 
     # cursor.execute("""SELECT * FROM posts WHERE id = %s """, (id,))
@@ -50,7 +52,7 @@ def get_post(id: int, response: Response, db: Session = Depends(get_db)):
     return post
 
 
-@router.delete("/post/{id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_post(id: int, db: Session = Depends(get_db)):
 
     # cursor.execute("""DELETE FROM posts WHERE id = %s RETURNING * """, (id,))
