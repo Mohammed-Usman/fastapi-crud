@@ -2,11 +2,11 @@ from fastapi import FastAPI, Response, status, HTTPException, Depends
 from typing import List
 import psycopg
 from psycopg.rows import dict_row
+
 import time
-from . import models, schemas
+from . import models, schemas, utils
 from .database import engine, get_db
 from sqlalchemy.orm import Session
-
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -123,3 +123,20 @@ def update_post(id: int, updated_post: schemas.PostCreate, db: Session = Depends
     db.commit()
 
     return post_query.first()
+
+
+@app.post("/users", status_code=status.HTTP_201_CREATED, response_model=schemas.UserOut)
+def createUser(user: schemas.UserCreate, db: Session = Depends(get_db)):
+
+    # hash passowrd from user.passowrd
+
+    # hashed_password = pwd_context.hash(user.password)
+    user.password = utils.hash(user.password)
+
+    new_user = models.User(**user.dict())
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return new_user
