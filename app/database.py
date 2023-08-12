@@ -21,3 +21,20 @@ def get_db():
 
     finally:
         db.close()
+
+
+# while True:
+#     try:
+#         conn = psycopg.connect(
+#             "host=localhost dbname=fastapi_crud user=postgres password=1234",
+#             row_factory=dict_row)
+
+#         cursor = conn.cursor()
+
+#         print("DB SUccess")
+
+#         break
+#     except Exception as e:
+#         print("DB connection failed")
+#         print("Error", e)
+#         time.sleep(2)
