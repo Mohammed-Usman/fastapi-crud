@@ -9,3 +9,5 @@ def hash(password: str):
 
 def verify(password, hashed_passowrd):
     return pwd_context.verify(password, hashed_passowrd)
+
+# pm.environment.set("JWT", pm.response.json().access_token);
