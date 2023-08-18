@@ -31,7 +31,7 @@ class User(Base):
                         nullable=False, server_default=text("now()"))
 
 
-class Votes(Base):
+class Vote(Base):
     __tablename__ = "votes"
 
     user_id = Column(Integer, ForeignKey(

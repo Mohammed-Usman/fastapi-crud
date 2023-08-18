@@ -1,4 +1,4 @@
-from fastapi import Response, status, HTTPException, APIRouter, Depends
+from fastapi import status, HTTPException, APIRouter, Depends
 from sqlalchemy.orm import Session
 from .. import database, models, schemas, oauth2
 
@@ -15,9 +15,9 @@ async def vote(
         current_user: int = Depends(oauth2.get_current_user)
 ):
 
-    vote_query = db.query(models.Votes).filter(
-        models.Votes.post_id == vote.post_id,
-        models.Votes.user_id == current_user.id
+    vote_query = db.query(models.Vote).filter(
+        models.Vote.post_id == vote.post_id,
+        models.Vote.user_id == current_user.id
     )
     found_vote = vote_query.first()
 
@@ -36,7 +36,7 @@ async def vote(
                 detail=f"user {current_user.id} has already voted on post {vote.post_id}"
             )
 
-        new_vote = models.Votes(post_id=vote.post_id, user_id=current_user.id)
+        new_vote = models.Vote(post_id=vote.post_id, user_id=current_user.id)
         db.add(new_vote)
         db.commit()
 
