@@ -1,5 +1,5 @@
 from typing import List, Optional
-
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from fastapi import Response, status, HTTPException, APIRouter, Depends
 
@@ -12,7 +12,8 @@ router = APIRouter(
 )
 
 
-@router.get("/", response_model=List[schemas.Post])
+# @router.get("/", response_model=List[schemas.Post])
+@router.get("/", response_model=list[schemas.PostOut])
 async def get_posts(
         db: Session = Depends(get_db),
         current_user: int = Depends(oauth2.get_current_user),
@@ -21,10 +22,11 @@ async def get_posts(
         search: Optional[str] = ""
 ):
 
-    # cursor.execute("""SELECT * FROM posts""")
-    # posts = cursor.fetchall()
+    # posts = db.query(models.Post).filter(
+    #     models.Post.title.contains(search)).limit(limit).offset(skip).all()
 
-    posts = db.query(models.Post).filter(
+    posts = db.query(models.Post, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote, models.Vote.post_id == models.Post.id, isouter=True).group_by(models.Post.id).filter(
         models.Post.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
@@ -49,17 +51,23 @@ async def createposts(
     return new_post
 
 
-@router.get("/{id}", response_model=schemas.Post)
+@router.get("/{id}", response_model=schemas.PostOut)
 def get_post(
     id: int, response: Response,
     db: Session = Depends(get_db),
     current_user: int = Depends(oauth2.get_current_user)
 ):
 
-    # cursor.execute("""SELECT * FROM posts WHERE id = %s """, (id,))
-    # post = cursor.fetchone()
+    # post = db.query(models.Post).filter(models.Post.id == id).first()
 
-    post = db.query(models.Post).filter(models.Post.id == id).first()
+    post = db.query(models.Post, func.count(models.Vote.post_id).label(
+        "votes")
+    ).join(
+        models.Vote, models.Vote.post_id == models.Post.id,
+        isouter=True
+    ).group_by(
+        models.Post.id
+    ).filter(models.Post.id == id).first()
 
     if not post:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
