@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     database_hostname: str
     database_port: int
-    database_password: int
+    database_password: str
     database_name: str
     database_user_name: str
     secret_key: str
